@@ -40,6 +40,7 @@ To develop all apps and packages, run the following command:
 ```
 cd my-turborepo
 pnpm run dev
+docker-compose -f docker-compose-build.yml up
 ```
 
 ### Remote Caching

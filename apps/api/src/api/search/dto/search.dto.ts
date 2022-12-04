@@ -7,4 +7,6 @@ export class SearchDto {
   public districtIds: number[];
   @ApiProperty({ type: 'string', required: false })
   public query: string;
+  @ApiProperty({ type: 'number', required: false })
+  public sort: number;
 }
