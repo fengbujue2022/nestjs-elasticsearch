@@ -5,7 +5,7 @@ services:
     image: elasticsearch:7.17.7
     build:
       context: .
-      dockerfile: es.Dockerfile
+      dockerfile: ES.Dockerfile
     container_name: es01
     environment:
       - node.name=es01
