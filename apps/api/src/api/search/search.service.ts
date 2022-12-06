@@ -6,12 +6,15 @@ import {
   PropertyName,
   MappingProperty,
   IndicesIndexSettings,
+  QueryDslRangeQuery,
 } from '@elastic/elasticsearch/lib/api/types';
 import { SearchDto } from './dto/search.dto';
 import merge from 'lodash.merge';
 import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
-import { generateUUID, getRandomInt } from 'src/common/utils';
+import { generateUUID, getRandomInt, hasValue } from 'src/common/utils';
+import companyNameJson from './json/companyName.json';
+import { Enum_SearchSort } from 'src/common/constants/enum';
 
 interface OpenJobDocument {
   jobId: string;
@@ -34,7 +37,7 @@ interface OpenJobDocument {
 const INDEX_NAME = 'openjob';
 
 const MAPPING_PROPERTIES: Record<PropertyName, MappingProperty> = {
-  jobId: { type: 'text' },
+  jobId: { type: 'keyword' }, // 如果是text ，terms将不会命中， 可能和analyze有关
   name: { type: 'text', analyzer: 'my_analyzer' },
   companyName1: { type: 'text', analyzer: 'my_analyzer' },
   companyName2: {
@@ -79,7 +82,12 @@ const runInZhCNFakerJs = function <T>(fn: () => T): T {
   return result;
 };
 
-const generateFakeDocument = (): OpenJobDocument => {
+const getCompanyNameCN = (index: number) => {
+  const max = companyNameJson.length - 1;
+  return companyNameJson[index % max];
+};
+
+const generateFakeDocument = (index: number): OpenJobDocument => {
   const template = 'YYYY-MM-DDTHH:mm:ss:SSS[Z]';
 
   const startDate = faker.date.between(
@@ -107,9 +115,7 @@ const generateFakeDocument = (): OpenJobDocument => {
     jobId: generateUUID(),
     name: faker.name.jobTitle(),
     companyName1: faker.company.name(),
-    companyName2: runInZhCNFakerJs(() => {
-      return faker.company.name();
-    }),
+    companyName2: getCompanyNameCN(index),
     districtId: Number(faker.random.numeric(getRandomInt(3, 4))),
     functionIds: Array(Number(faker.random.numeric()))
       .fill(0)
@@ -142,37 +148,104 @@ export class SearchService {
     };
 
     // withinIds
-    if (searchDto.withinIds?.length) {
-      mergeWithQuery({
-        ids: {
-          values: searchDto.withinIds.map((id) => id.toString()),
-        },
-      });
-    }
-
-    // districtIds
-    if (searchDto.districtIds?.length) {
+    if (hasValue(searchDto.withinIds)) {
       mergeWithQuery({
         bool: {
           filter: [
             {
               terms: {
-                districtIds: searchDto.districtIds.map((d) => d.toString()),
+                jobId: searchDto.withinIds.map((d) => d.toString()),
               },
             },
           ],
+        },
+      });
+    }
+
+    // districtIds
+    if (hasValue(searchDto.districtIds)) {
+      mergeWithQuery({
+        bool: {
+          filter: [
+            {
+              terms: {
+                districtId: searchDto.districtIds.map((d) => d.toString()),
+              },
+            },
+          ],
+        },
+      });
+    }
+
+    // functionIds
+    if (hasValue(searchDto.functionIds)) {
+      mergeWithQuery({
+        bool: {
+          filter: [
+            {
+              terms: {
+                functionIds: searchDto.functionIds.map((d) => d.toString()),
+              },
+            },
+          ],
+        },
+      });
+    }
+
+    // salary range
+    if (hasValue(searchDto.salaryFrom) || hasValue(searchDto.salaryTo)) {
+      let rangeDSLQuery: Partial<Record<string, QueryDslRangeQuery>> = {};
+
+      if (hasValue(searchDto.salaryFrom)) {
+        rangeDSLQuery = {
+          ...rangeDSLQuery,
+          salaryFrom: {
+            gte: searchDto.salaryFrom,
+          },
+        };
+      }
+
+      if (hasValue(searchDto.salaryTo)) {
+        rangeDSLQuery = {
+          ...rangeDSLQuery,
+          salaryTo: {
+            lte: searchDto.salaryTo,
+          },
+        };
+      }
+
+      mergeWithQuery({
+        bool: {
+          must: [{ range: rangeDSLQuery }],
         },
       });
     }
 
     // query
-    if (searchDto.query) {
+    if (hasValue(searchDto.query)) {
       mergeWithQuery({
         bool: {
           must: [
             {
-              match: {
-                name: searchDto.query,
+              bool: {
+                should: [
+                  {
+                    match_phrase: {
+                      companyName1: {
+                        query: searchDto.query,
+                        //minimum_should_match: searchDto.query.length,
+                      },
+                    },
+                  },
+                  {
+                    match_phrase: {
+                      companyName2: {
+                        query: searchDto.query,
+                        //minimum_should_match: searchDto.query.length,
+                      },
+                    },
+                  },
+                ],
               },
             },
           ],
@@ -180,7 +253,8 @@ export class SearchService {
       });
     }
 
-    if (searchDto.sort === 1) {
+    // sort
+    if (searchDto.sort === Enum_SearchSort.DateDesc) {
       request.sort = [
         {
           startDate: { order: 'desc' },
@@ -188,12 +262,15 @@ export class SearchService {
       ];
     }
 
+    request.size = searchDto.rows ?? 20;
+    request.from = searchDto.startAt;
+
     return request;
   }
 
   async search(searchDto: SearchDto) {
     const params = this.buildSearchRequest(searchDto);
-    console.log('searchRequest:\n', params);
+    console.log('debug:searchRequest:\n', JSON.stringify(params));
     const result = await this.elasticsearchService.search(params);
     return result;
   }
@@ -239,8 +316,8 @@ export class SearchService {
 
     const documents: OpenJobDocument[] = Array(toCreateDocumentCount)
       .fill(0)
-      .map(() => {
-        return generateFakeDocument();
+      .map((_, index) => {
+        return generateFakeDocument(index);
       });
 
     const operations = documents.flatMap((doc) => [

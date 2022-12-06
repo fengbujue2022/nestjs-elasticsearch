@@ -6,6 +6,9 @@ services:
     build:
       context: .
       dockerfile: ES.Dockerfile
+      cache_from:
+        - elasticsearch:7.17.7
+        - type=local,src=path/to/cache
     container_name: es01
     environment:
       - node.name=es01

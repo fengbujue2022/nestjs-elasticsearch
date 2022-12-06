@@ -9,7 +9,7 @@ importers:
       turbo: latest
     devDependencies:
       eslint-config-custom: link:packages/eslint-config-custom
-      prettier: 2.7.1
+      prettier: 2.8.0
       turbo: 1.6.3
 
   apps/api:
@@ -30,6 +30,7 @@ importers:
       '@types/supertest': ^2.0.11
       '@typescript-eslint/eslint-plugin': ^5.0.0
       '@typescript-eslint/parser': ^5.0.0
+      class-transformer: 0.5.1
       class-validator: ^0.13.2
       dayjs: ^1.11.6
       eslint: ^8.0.1
@@ -52,11 +53,12 @@ importers:
     dependencies:
       '@elastic/elasticsearch': 8.5.0
       '@faker-js/faker': 7.6.0
-      '@nestjs/common': 9.1.6_upcmjahfwlai3vw7b2ah62xipi
+      '@nestjs/common': 9.1.6_x6yqyveuahcdef4z4mxykmuv6a
       '@nestjs/core': 9.1.6_bx3wiubfryfbvpzqwr6ml4ajpu
       '@nestjs/elasticsearch': 9.0.0_qoosdclx76z7tnlb5cs3ufw5vq
       '@nestjs/platform-express': 9.1.6_6whalgrsvisgjemghedgkfq7dm
-      '@nestjs/swagger': 6.1.3_npvpyvhbq5e2dpymf6hhychpny
+      '@nestjs/swagger': 6.1.3_h6kbnmnvyyl73y6mu4cczkstmm
+      class-transformer: 0.5.1
       class-validator: 0.13.2
       dayjs: 1.11.6
       lodash.merge: 4.6.2
@@ -99,7 +101,7 @@ importers:
       eslint: 7.32.0
       eslint-config-next: 12.3.1_3rubbgt5ekhqrcgx4uwls3neim
       eslint-config-prettier: 8.5.0_eslint@7.32.0
-      eslint-config-turbo: 0.0.4_eslint@7.32.0
+      eslint-config-turbo: 0.0.7_eslint@7.32.0
       eslint-plugin-react: 7.31.8_eslint@7.32.0
     devDependencies:
       typescript: 4.8.4
@@ -1000,7 +1002,7 @@ packages:
       - webpack-cli
     dev: true
 
-  /@nestjs/common/9.1.6_upcmjahfwlai3vw7b2ah62xipi:
+  /@nestjs/common/9.1.6_x6yqyveuahcdef4z4mxykmuv6a:
     resolution: {integrity: sha512-9Ttk9va/BwEab36RSXLZdRoPUX3DZHUpzseKEfqHVhnaUIsIMt7lVd79GQ1FroQ2FZqoCwcLyBowevXhrE1Wnw==}
     peerDependencies:
       cache-manager: <=5
@@ -1016,6 +1018,7 @@ packages:
       class-validator:
         optional: true
     dependencies:
+      class-transformer: 0.5.1
       class-validator: 0.13.2
       iterare: 1.2.1
       reflect-metadata: 0.1.13
@@ -1041,7 +1044,7 @@ packages:
       '@nestjs/websockets':
         optional: true
     dependencies:
-      '@nestjs/common': 9.1.6_upcmjahfwlai3vw7b2ah62xipi
+      '@nestjs/common': 9.1.6_x6yqyveuahcdef4z4mxykmuv6a
       '@nestjs/platform-express': 9.1.6_6whalgrsvisgjemghedgkfq7dm
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
@@ -1063,11 +1066,11 @@ packages:
       rxjs: ^7.2.0
     dependencies:
       '@elastic/elasticsearch': 8.5.0
-      '@nestjs/common': 9.1.6_upcmjahfwlai3vw7b2ah62xipi
+      '@nestjs/common': 9.1.6_x6yqyveuahcdef4z4mxykmuv6a
       rxjs: 7.5.7
     dev: false
 
-  /@nestjs/mapped-types/1.2.0_ecjt3shgnq7r6pibzvjbw262ze:
+  /@nestjs/mapped-types/1.2.0_dp3e5vqzoo2uvzu33xnf3h4a44:
     resolution: {integrity: sha512-NTFwPZkQWsArQH8QSyFWGZvJ08gR+R4TofglqZoihn/vU+ktHEJjMqsIsADwb7XD97DhiD+TVv5ac+jG33BHrg==}
     peerDependencies:
       '@nestjs/common': ^7.0.8 || ^8.0.0 || ^9.0.0
@@ -1080,7 +1083,8 @@ packages:
       class-validator:
         optional: true
     dependencies:
-      '@nestjs/common': 9.1.6_upcmjahfwlai3vw7b2ah62xipi
+      '@nestjs/common': 9.1.6_x6yqyveuahcdef4z4mxykmuv6a
+      class-transformer: 0.5.1
       class-validator: 0.13.2
       reflect-metadata: 0.1.13
     dev: false
@@ -1091,7 +1095,7 @@ packages:
       '@nestjs/common': ^9.0.0
       '@nestjs/core': ^9.0.0
     dependencies:
-      '@nestjs/common': 9.1.6_upcmjahfwlai3vw7b2ah62xipi
+      '@nestjs/common': 9.1.6_x6yqyveuahcdef4z4mxykmuv6a
       '@nestjs/core': 9.1.6_bx3wiubfryfbvpzqwr6ml4ajpu
       body-parser: 1.20.1
       cors: 2.8.5
@@ -1131,7 +1135,7 @@ packages:
       - chokidar
     dev: true
 
-  /@nestjs/swagger/6.1.3_npvpyvhbq5e2dpymf6hhychpny:
+  /@nestjs/swagger/6.1.3_h6kbnmnvyyl73y6mu4cczkstmm:
     resolution: {integrity: sha512-H9C/yRgLFb5QrAt6iGrYmIX9X7Q0zXkgZaTNUATljUBra+RCWrEUbLHBcGjTAOtcIyGV/vmyCLv68YSVcZoE0Q==}
     peerDependencies:
       '@fastify/static': ^6.0.0
@@ -1142,9 +1146,9 @@ packages:
       '@fastify/static':
         optional: true
     dependencies:
-      '@nestjs/common': 9.1.6_upcmjahfwlai3vw7b2ah62xipi
+      '@nestjs/common': 9.1.6_x6yqyveuahcdef4z4mxykmuv6a
       '@nestjs/core': 9.1.6_bx3wiubfryfbvpzqwr6ml4ajpu
-      '@nestjs/mapped-types': 1.2.0_ecjt3shgnq7r6pibzvjbw262ze
+      '@nestjs/mapped-types': 1.2.0_dp3e5vqzoo2uvzu33xnf3h4a44
       js-yaml: 4.1.0
       lodash: 4.17.21
       path-to-regexp: 3.2.0
@@ -1168,7 +1172,7 @@ packages:
       '@nestjs/platform-express':
         optional: true
     dependencies:
-      '@nestjs/common': 9.1.6_upcmjahfwlai3vw7b2ah62xipi
+      '@nestjs/common': 9.1.6_x6yqyveuahcdef4z4mxykmuv6a
       '@nestjs/core': 9.1.6_bx3wiubfryfbvpzqwr6ml4ajpu
       '@nestjs/platform-express': 9.1.6_6whalgrsvisgjemghedgkfq7dm
       tslib: 2.4.0
@@ -2208,6 +2212,9 @@ packages:
     resolution: {integrity: sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==}
     dev: true
 
+  /class-transformer/0.5.1:
+    resolution: {integrity: sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==}
+
   /class-validator/0.13.2:
     resolution: {integrity: sha512-yBUcQy07FPlGzUjoLuUfIOXzgynnQPPruyK1Ge2B74k9ROwnle1E+NxLWnUv5OLU8hA/qL5leAE9XnXq3byaBw==}
     dependencies:
@@ -2664,13 +2671,13 @@ packages:
       eslint: 8.27.0
     dev: true
 
-  /eslint-config-turbo/0.0.4_eslint@7.32.0:
-    resolution: {integrity: sha512-HErPS/wfWkSdV9Yd2dDkhZt3W2B78Ih/aWPFfaHmCMjzPalh+5KxRRGTf8MOBQLCebcWJX0lP1Zvc1rZIHlXGg==}
+  /eslint-config-turbo/0.0.7_eslint@7.32.0:
+    resolution: {integrity: sha512-WbrGlyfs94rOXrhombi1wjIAYGdV2iosgJRndOZtmDQeq5GLTzYmBUCJQZWtLBEBUPCj96RxZ2OL7Cn+xv/Azg==}
     peerDependencies:
-      eslint: ^7.23.0 || ^8.0.0
+      eslint: '>6.6.0'
     dependencies:
       eslint: 7.32.0
-      eslint-plugin-turbo: 0.0.4_eslint@7.32.0
+      eslint-plugin-turbo: 0.0.7_eslint@7.32.0
     dev: false
 
   /eslint-import-resolver-node/0.3.6:
@@ -2832,10 +2839,10 @@ packages:
       string.prototype.matchall: 4.0.7
     dev: false
 
-  /eslint-plugin-turbo/0.0.4_eslint@7.32.0:
-    resolution: {integrity: sha512-dfmYE/iPvoJInQq+5E/0mj140y/rYwKtzZkn3uVK8+nvwC5zmWKQ6ehMWrL4bYBkGzSgpOndZM+jOXhPQ2m8Cg==}
+  /eslint-plugin-turbo/0.0.7_eslint@7.32.0:
+    resolution: {integrity: sha512-iajOH8eD4jha3duztGVBD1BEmvNrQBaA/y3HFHf91vMDRYRwH7BpHSDFtxydDpk5ghlhRxG299SFxz7D6z4MBQ==}
     peerDependencies:
-      eslint: ^7.23.0 || ^8.0.0
+      eslint: '>6.6.0'
     dependencies:
       eslint: 7.32.0
     dev: false
@@ -4826,6 +4833,12 @@ packages:
 
   /prettier/2.7.1:
     resolution: {integrity: sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
+  /prettier/2.8.0:
+    resolution: {integrity: sha512-9Lmg8hTFZKG0Asr/kW9Bp8tJjRVluO8EJQVfY2T7FMw9T5jy4I/Uvx0Rca/XWf50QQ1/SS48+6IJWnrb+2yemA==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true

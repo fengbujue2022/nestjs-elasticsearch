@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ValidationPipe } from './common/pipe/validation.pipe';
 
 const PORT = 5000;
 
@@ -15,7 +16,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(PORT);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();
