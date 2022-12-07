@@ -164,13 +164,13 @@ export class SearchService {
     };
     const query = request.query;
 
-    const mergeWithQuery = (toMerged: QueryDslQueryContainer) => {
+    const mergeIntoQuery = (toMerged: QueryDslQueryContainer) => {
       return merge(query, toMerged);
     };
 
     // withinIds
     if (hasValue(searchDto.withinIds)) {
-      mergeWithQuery({
+      mergeIntoQuery({
         bool: {
           filter: [
             {
@@ -185,7 +185,7 @@ export class SearchService {
 
     // districtIds
     if (hasValue(searchDto.districtIds)) {
-      mergeWithQuery({
+      mergeIntoQuery({
         bool: {
           filter: [
             {
@@ -200,7 +200,7 @@ export class SearchService {
 
     // functionIds
     if (hasValue(searchDto.functionIds)) {
-      mergeWithQuery({
+      mergeIntoQuery({
         bool: {
           filter: [
             {
@@ -235,7 +235,7 @@ export class SearchService {
         };
       }
 
-      mergeWithQuery({
+      mergeIntoQuery({
         bool: {
           must: [{ range: rangeDSLQuery }],
         },
@@ -244,7 +244,7 @@ export class SearchService {
 
     // query
     if (hasValue(searchDto.query)) {
-      mergeWithQuery({
+      mergeIntoQuery({
         bool: {
           must: [
             {

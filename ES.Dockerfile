@@ -4,4 +4,4 @@ RUN elasticsearch-plugin install -b https://github.com/medcl/elasticsearch-analy
 COPY ./es_files/synonym.txt /usr/share/elasticsearch/config/analysis/synonym.txt
 COPY ./es_files/stopwords.txt /usr/share/elasticsearch/config/analysis/stopwords.txt
 
-EXPOSE 9200
+USER elasticsearch
