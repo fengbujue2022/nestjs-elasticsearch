@@ -42,8 +42,8 @@ const MAPPING_PROPERTIES: Record<PropertyName, MappingProperty> = {
   companyName1: { type: 'text', analyzer: 'my_analyzer' },
   companyName2: {
     type: 'text',
-    analyzer: 'ik_max_word',
-    search_analyzer: 'ik_max_word',
+    analyzer: 'ik_syno_smart',
+    search_analyzer: 'ik_syno_smart',
   },
   salaryFrom: { type: 'integer' },
   salaryTo: { type: 'integer' },
@@ -69,6 +69,27 @@ const SETTINGS: IndicesIndexSettings = {
       my_analyzer: {
         type: 'custom',
         tokenizer: 'my_tokenizer',
+        filter: ['my_stopword', 'my_synonym'],
+      },
+      ik_syno_smart: {
+        type: 'custom',
+        tokenizer: 'ik_smart',
+        filter: ['my_stopword', 'my_synonym'],
+      },
+      ik_syno_max: {
+        type: 'custom',
+        tokenizer: 'ik_max_word',
+        filter: ['my_stopword', 'my_synonym'],
+      },
+    },
+    filter: {
+      my_synonym: {
+        type: 'synonym',
+        synonyms_path: 'analysis/synonym.txt',
+      },
+      my_stopword: {
+        type: 'stop',
+        stopwords_path: 'analysis/stopwords.txt',
       },
     },
   },

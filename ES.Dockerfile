@@ -1,4 +1,7 @@
 FROM elasticsearch:7.17.7
-RUN elasticsearch-plugin remove analysis-ik
-RUN elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.17.7/elasticsearch-analysis-ik-7.17.7.zip --batch
+RUN elasticsearch-plugin install -b https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.17.7/elasticsearch-analysis-ik-7.17.7.zip
+
+COPY ./es_files/synonym.txt /usr/share/elasticsearch/config/analysis/synonym.txt
+COPY ./es_files/stopwords.txt /usr/share/elasticsearch/config/analysis/stopwords.txt
+
 EXPOSE 9200
