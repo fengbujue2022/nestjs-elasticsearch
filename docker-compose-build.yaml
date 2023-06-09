@@ -2,10 +2,12 @@ version: "3.8"
 
 services:
   elasticsearch:
-    image: elasticsearch:7.17.7
+    image: my-elasticsearch:7.17.7
     build:
       context: .
       dockerfile: ES.Dockerfile
+      cache_from:
+        - my-elasticsearch:7.17.7
     container_name: es01
     environment:
       - node.name=es01
@@ -31,30 +33,19 @@ services:
       - 5601:5601
     networks:
       - elastic
-
-  logstash:
-    image: logstash:7.17.7
+  mysql:
+    image: mysql:latest
     ports:
-      - 9600:9600
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./sql/openjob.docker.sql:/docker-entrypoint-initdb.d/openjob.docker.sql.sql
     environment:
-      LS_JAVA_OPTS: -Xms256m -Xmx256m
-    networks:
-      - elastic
-    depends_on:
-      - elasticsearch
-
-  db:
-    image: mysql
-    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
-    # (this is just an example, not intended to be a production configuration)
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_ALLOW_EMPTY_PASSWORD: "On"
 
 volumes:
   es-data:
-    driver: local
+  mysql-data: 
 
 networks:
   elastic:

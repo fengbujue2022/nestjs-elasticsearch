@@ -28,20 +28,7 @@ services:
       - 5601:5601
     networks:
       - elastic
-
-  logstash:
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
-    ports:
-      - 9600:9600
-    environment:
-      LS_JAVA_OPTS: -Xms256m -Xmx256m
-    networks:
-      - elastic
-    depends_on:
-      - elasticsearch
-
+      
 volumes:
   es-data:
     driver: local

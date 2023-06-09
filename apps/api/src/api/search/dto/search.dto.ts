@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Enum_SearchSort } from 'src/common/constants/enum';
+import { Enum_SearchSort } from 'src/constants/enum';
 import { IsNumber, IsArray, IsString, IsOptional } from 'class-validator';
 export class SearchDto {
   @ApiProperty({ type: 'string', required: false, isArray: true })

@@ -5,16 +5,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+datasource openjob {
+  provider = "mysql"
+  url      = "mysql://root@localhost:3306/openjob"
 }
 
 model Job {
   jobId           Int       @id @default(autoincrement())
   districtId      Int
   name            String
-  companyName     String
+  companyName1    String
+  companyName2    String
   startDate       DateTime
   endDate         DateTime
   salaryFrom      Decimal

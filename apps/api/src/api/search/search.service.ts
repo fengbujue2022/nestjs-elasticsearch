@@ -11,7 +11,7 @@ import {
 import { SearchDto } from './dto/search.dto';
 import merge from 'lodash.merge';
 import { hasValue } from 'src/common/utils';
-import { Enum_SearchSort } from 'src/common/constants/enum';
+import { Enum_EsIndex, Enum_SearchSort } from 'src/constants/enum';
 
 interface OpenJobDocument {
   jobId: string;
@@ -31,16 +31,21 @@ interface OpenJobDocument {
   endDate: Date;
 }
 
-const INDEX_NAME = 'openjob';
-
 const MAPPING_PROPERTIES: Record<PropertyName, MappingProperty> = {
   jobId: { type: 'keyword' }, // 如果是text ，terms将不会命中， 可能和analyze有关
-  name: { type: 'text', analyzer: 'en_analyzer' },
-  companyName1: { type: 'text', analyzer: 'my_analyzer' },
-  companyName2: {
+  name: {
     type: 'text',
     analyzer: 'ik_syno_smart',
     search_analyzer: 'ik_syno_smart',
+  },
+  companyName1: {
+    type: 'text',
+    analyzer: 'ik_syno_smart',
+    search_analyzer: 'ik_syno_smart',
+  },
+  companyName2: {
+    type: 'text',
+    analyzer: 'en_analyzer',
   },
   salaryFrom: { type: 'integer' },
   salaryTo: { type: 'integer' },
@@ -105,7 +110,7 @@ export class SearchService {
 
   private buildSearchRequest(searchDto: SearchDto): SearchRequest {
     const request: SearchRequest = {
-      index: INDEX_NAME,
+      index: Enum_EsIndex.Jobs,
       query: {},
     };
     const query = request.query;
@@ -245,22 +250,22 @@ export class SearchService {
   async applyIndexConfig() {
     // close
     await this.elasticsearchService.indices.close({
-      index: INDEX_NAME,
+      index: Enum_EsIndex.Jobs,
     });
 
     await this.elasticsearchService.indices.putSettings({
-      index: INDEX_NAME,
+      index: Enum_EsIndex.Jobs,
       settings: SETTINGS,
     });
 
     await this.elasticsearchService.indices.putMapping({
-      index: INDEX_NAME,
+      index: Enum_EsIndex.Jobs,
       properties: MAPPING_PROPERTIES,
     });
 
     // reopen
     await this.elasticsearchService.indices.open({
-      index: INDEX_NAME,
+      index: Enum_EsIndex.Jobs,
     });
   }
 
@@ -304,13 +309,13 @@ export class SearchService {
   async deleteAll(): Promise<void> {
     // maybe clear documents is unnecessary
     await this.elasticsearchService.deleteByQuery({
-      index: INDEX_NAME,
+      index: Enum_EsIndex.Jobs,
       query: {
         match_all: {},
       },
     });
     await this.elasticsearchService.indices.delete({
-      index: INDEX_NAME,
+      index: Enum_EsIndex.Jobs,
     });
   }
 }
