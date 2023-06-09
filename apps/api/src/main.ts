@@ -1,5 +1,6 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { PrismaClientExceptionFilter, PrismaService } from 'nestjs-prisma';
 import { AppModule } from './app.module';
 import { ValidationPipe } from './common/pipe/validation.pipe';
 
@@ -7,6 +8,16 @@ const PORT = 5000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(new ValidationPipe());
+
+  // enable shutdown hook
+  const prismaService: PrismaService = app.get(PrismaService);
+  await prismaService.enableShutdownHooks(app);
+
+  // Prisma Client Exception Filter for unhandled exceptions
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
   const config = new DocumentBuilder()
     .setTitle('Apis')
@@ -16,7 +27,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.enableCors();
+
   await app.listen(PORT);
 }
 

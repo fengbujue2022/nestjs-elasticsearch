@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Job {
+  jobId           Int       @id @default(autoincrement())
+  districtId      Int
+  name            String
+  companyName     String
+  startDate       DateTime
+  endDate         DateTime
+  salaryFrom      Decimal
+  salaryTo        Decimal
+  lat             Decimal
+  lon             Decimal
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now())
+}
+
+model JobCategory {
+  jobCategoryId          Int       @id @default(autoincrement())
+  name        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+}
+
+model JobCategoryJob {
+  jobCategoryId  Int
+  jobId          Int
+  typeId         Int
+  @@id([jobCategoryId, jobId,typeId])
+}

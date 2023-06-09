@@ -10,10 +10,7 @@ import {
 } from '@elastic/elasticsearch/lib/api/types';
 import { SearchDto } from './dto/search.dto';
 import merge from 'lodash.merge';
-import { faker } from '@faker-js/faker';
-import dayjs from 'dayjs';
-import { generateUUID, getRandomInt, hasValue } from 'src/common/utils';
-import companyNameJson from './json/companyName.json';
+import { hasValue } from 'src/common/utils';
 import { Enum_SearchSort } from 'src/common/constants/enum';
 
 interface OpenJobDocument {
@@ -38,7 +35,7 @@ const INDEX_NAME = 'openjob';
 
 const MAPPING_PROPERTIES: Record<PropertyName, MappingProperty> = {
   jobId: { type: 'keyword' }, // 如果是text ，terms将不会命中， 可能和analyze有关
-  name: { type: 'text', analyzer: 'my_analyzer' },
+  name: { type: 'text', analyzer: 'en_analyzer' },
   companyName1: { type: 'text', analyzer: 'my_analyzer' },
   companyName2: {
     type: 'text',
@@ -56,9 +53,16 @@ const MAPPING_PROPERTIES: Record<PropertyName, MappingProperty> = {
 };
 
 const SETTINGS: IndicesIndexSettings = {
+  // 'indexing.slowlog': {
+  //   threshold: {
+  //     query: {
+  //       info: '0s',
+  //     },
+  //   },
+  // },
   analysis: {
     tokenizer: {
-      my_tokenizer: {
+      ngram_tokenizer: {
         type: 'ngram',
         min_gram: 2,
         max_gram: 3,
@@ -66,9 +70,9 @@ const SETTINGS: IndicesIndexSettings = {
       },
     },
     analyzer: {
-      my_analyzer: {
+      en_analyzer: {
         type: 'custom',
-        tokenizer: 'my_tokenizer',
+        tokenizer: 'ngram_tokenizer',
         filter: ['my_stopword', 'my_synonym'],
       },
       ik_syno_smart: {
@@ -93,64 +97,6 @@ const SETTINGS: IndicesIndexSettings = {
       },
     },
   },
-};
-
-const runInZhCNFakerJs = function <T>(fn: () => T): T {
-  const stagedLocale = faker.locale;
-  faker.setLocale('zh_CN');
-  const result = fn();
-  faker.setLocale(stagedLocale);
-  return result;
-};
-
-const getCompanyNameCN = (index: number) => {
-  const max = companyNameJson.length - 1;
-  return companyNameJson[index % max];
-};
-
-const generateFakeDocument = (index: number): OpenJobDocument => {
-  const template = 'YYYY-MM-DDTHH:mm:ss:SSS[Z]';
-
-  const startDate = faker.date.between(
-    '2022-01-01T00:00:00.000Z',
-    '2023-12-01T00:00:00.000Z',
-  );
-
-  const endDate = faker.date.between(
-    dayjs(startDate).format(template),
-    dayjs(startDate).add(1, 'years').format(template),
-  );
-
-  // create date should earlier than start date
-  const createDate = faker.date.between(
-    '2022-01-01T00:00:00.000Z',
-    dayjs(startDate).format(template),
-  );
-
-  const salaryFrom = Number(
-    getRandomInt(0, 1) ? faker.random.numeric(1) : faker.random.numeric(2),
-  );
-  const salaryTo = getRandomInt(salaryFrom, salaryFrom * 1.5);
-
-  return {
-    jobId: generateUUID(),
-    name: faker.name.jobTitle(),
-    companyName1: faker.company.name(),
-    companyName2: getCompanyNameCN(index),
-    districtId: Number(faker.random.numeric(getRandomInt(3, 4))),
-    functionIds: Array(Number(faker.random.numeric()))
-      .fill(0)
-      .map(() => Number(faker.random.numeric(getRandomInt(3, 4)))),
-    salaryFrom: salaryFrom * 1000,
-    salaryTo: salaryTo * 1000,
-    geo: {
-      lat: faker.address.latitude(23, 22, 6),
-      lon: faker.address.longitude(115, 113, 6),
-    },
-    startDate,
-    endDate,
-    createDate,
-  };
 };
 
 @Injectable()
@@ -318,42 +264,42 @@ export class SearchService {
     });
   }
 
-  async bulkCreateIndexDocuments() {
-    const isExists = await this.elasticsearchService.indices.exists({
-      index: INDEX_NAME,
-    });
+  // async bulkCreateIndexDocuments() {
+  //   const isExists = await this.elasticsearchService.indices.exists({
+  //     index: INDEX_NAME,
+  //   });
 
-    if (!isExists) {
-      await this.elasticsearchService.indices.create({
-        index: INDEX_NAME,
-        mappings: {
-          properties: MAPPING_PROPERTIES,
-        },
-        settings: SETTINGS,
-      });
-    }
+  //   if (!isExists) {
+  //     await this.elasticsearchService.indices.create({
+  //       index: INDEX_NAME,
+  //       mappings: {
+  //         properties: MAPPING_PROPERTIES,
+  //       },
+  //       settings: SETTINGS,
+  //     });
+  //   }
 
-    const toCreateDocumentCount = 1000; // 1k
+  //   const toCreateDocumentCount = 1000; // 1k
 
-    const documents: OpenJobDocument[] = Array(toCreateDocumentCount)
-      .fill(0)
-      .map((_, index) => {
-        return generateFakeDocument(index);
-      });
+  //   const documents: OpenJobDocument[] = Array(toCreateDocumentCount)
+  //     .fill(0)
+  //     .map((_, index) => {
+  //       return generateFakeDocument(index);
+  //     });
 
-    const operations = documents.flatMap((doc) => [
-      { index: { _index: INDEX_NAME } },
-      doc,
-    ]);
+  //   const operations = documents.flatMap((doc) => [
+  //     { index: { _index: INDEX_NAME } },
+  //     doc,
+  //   ]);
 
-    return await this.elasticsearchService.bulk(
-      {
-        refresh: true,
-        operations,
-      },
-      { compression: true },
-    );
-  }
+  //   return await this.elasticsearchService.bulk(
+  //     {
+  //       refresh: true,
+  //       operations,
+  //     },
+  //     { compression: true },
+  //   );
+  // }
 
   async deleteAll(): Promise<void> {
     // maybe clear documents is unnecessary

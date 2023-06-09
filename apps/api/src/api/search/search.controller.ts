@@ -1,15 +1,4 @@
-import {
-  ArgumentMetadata,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  PipeTransform,
-  Post,
-  Put,
-  Query,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Post, Put, Req } from '@nestjs/common';
 import { SearchService } from '@api/search/search.service';
 import { SearchDto } from './dto/search.dto';
 import { Request } from 'express';
@@ -39,19 +28,19 @@ export class SearchController {
     return [];
   }
 
-  @Post('bulkCreate')
-  async bulkCreate() {
-    const batch = 10;
-    let isSuccess = false;
-    for (let i = 0; i < batch; i++) {
-      const result = await this.searchService.bulkCreateIndexDocuments();
-      isSuccess = result.errors === false;
-      if (isSuccess === false) {
-        break;
-      }
-    }
-    return isSuccess;
-  }
+  // @Post('bulkCreate')
+  // async bulkCreate() {
+  //   const batch = 10;
+  //   let isSuccess = false;
+  //   for (let i = 0; i < batch; i++) {
+  //     const result = await this.searchService.bulkCreateIndexDocuments();
+  //     isSuccess = result.errors === false;
+  //     if (isSuccess === false) {
+  //       break;
+  //     }
+  //   }
+  //   return isSuccess;
+  // }
 
   @Put('config')
   async putSettings() {
