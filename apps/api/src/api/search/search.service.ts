@@ -236,7 +236,6 @@ export class SearchService {
 
     request.size = searchDto.rows ?? 20;
     request.from = searchDto.startAt;
-
     return request;
   }
 
@@ -269,22 +268,22 @@ export class SearchService {
             edge_analyzer: {
               type: 'custom',
               tokenizer: 'edge_tokenizer',
-              filter: ['lowercase', 'asciifolding', 'word_delimiter'],
+              filter: ['lowercase', 'asciifolding'],
             },
             edge_w_space_analyzer: {
               type: 'custom',
               tokenizer: 'edge_w_space_tokenizer',
-              filter: ['lowercase', 'asciifolding', 'word_delimiter'],
+              filter: ['lowercase', 'asciifolding'],
             },
             edge_query_analyzer: {
               type: 'custom',
               tokenizer: 'keyword',
-              filter: ['lowercase', 'asciifolding', 'word_delimiter'],
+              filter: ['lowercase', 'asciifolding'],
             },
             standard_analyzer: {
               type: 'custom',
               tokenizer: 'standard',
-              filter: ['lowercase', 'asciifolding', 'word_delimiter'],
+              filter: ['lowercase', 'asciifolding'],
             },
           },
           tokenizer: {
@@ -311,15 +310,6 @@ export class SearchService {
           typeid: {
             type: 'integer',
           },
-          searchtext_1: {
-            type: 'text',
-          },
-          searchtext_2: {
-            type: 'text',
-          },
-          searchtext_3: {
-            type: 'text',
-          },
           sort_order: {
             type: 'integer',
           },
@@ -334,7 +324,6 @@ export class SearchService {
                   keyword: {
                     type: 'keyword',
                     similarity: 'boolean',
-                    dynamic: 'true',
                   },
                   full_text: {
                     type: 'text',
