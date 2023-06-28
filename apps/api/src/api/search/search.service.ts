@@ -248,25 +248,177 @@ export class SearchService {
   }
 
   async applyIndexConfig() {
-    // close
-    await this.elasticsearchService.indices.close({
-      index: Enum_EsIndex.Jobs,
+    const aliasName = Enum_EsIndex.Jobs;
+
+    let currentIndex_list: string[] = [];
+    try {
+      const indices = await this.elasticsearchService.indices.getAlias({
+        name: aliasName,
+      });
+      currentIndex_list = Object.keys(indices);
+    } catch (e) {
+      console.log(e);
+    }
+    const newIndex = `${Enum_EsIndex.Jobs}_${Date.now()}`;
+
+    await this.elasticsearchService.indices.create({
+      index: newIndex,
+      settings: {
+        analysis: {
+          analyzer: {
+            edge_analyzer: {
+              type: 'custom',
+              tokenizer: 'edge_tokenizer',
+              filter: ['lowercase', 'asciifolding', 'word_delimiter'],
+            },
+            edge_w_space_analyzer: {
+              type: 'custom',
+              tokenizer: 'edge_w_space_tokenizer',
+              filter: ['lowercase', 'asciifolding', 'word_delimiter'],
+            },
+            edge_query_analyzer: {
+              type: 'custom',
+              tokenizer: 'keyword',
+              filter: ['lowercase', 'asciifolding', 'word_delimiter'],
+            },
+            standard_analyzer: {
+              type: 'custom',
+              tokenizer: 'standard',
+              filter: ['lowercase', 'asciifolding', 'word_delimiter'],
+            },
+          },
+          tokenizer: {
+            edge_tokenizer: {
+              type: 'edge_ngram',
+              min_gram: 1,
+              max_gram: 10,
+              token_chars: ['letter', 'digit'],
+            },
+            edge_w_space_tokenizer: {
+              type: 'edge_ngram',
+              min_gram: 1,
+              max_gram: 10,
+              token_chars: ['whitespace'],
+            },
+          },
+        },
+      },
+      mappings: {
+        properties: {
+          job_suggestion_id: {
+            type: 'integer',
+          },
+          typeid: {
+            type: 'integer',
+          },
+          searchtext_1: {
+            type: 'text',
+          },
+          searchtext_2: {
+            type: 'text',
+          },
+          searchtext_3: {
+            type: 'text',
+          },
+          sort_order: {
+            type: 'integer',
+          },
+        },
+        dynamic_templates: [
+          {
+            name_type: {
+              match_mapping_type: 'string',
+              match: 'searchtext_*',
+              mapping: {
+                fields: {
+                  keyword: {
+                    type: 'keyword',
+                    similarity: 'boolean',
+                    dynamic: 'true',
+                  },
+                  full_text: {
+                    type: 'text',
+                    analyzer: 'standard_analyzer',
+                  },
+                  edge: {
+                    type: 'text',
+                    analyzer: 'edge_analyzer',
+                    similarity: 'boolean',
+                    search_analyzer: 'edge_query_analyzer',
+                  },
+                  edge_w_space: {
+                    type: 'text',
+                    analyzer: 'edge_w_space_analyzer',
+                    similarity: 'boolean',
+                    search_analyzer: 'edge_query_analyzer',
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
     });
 
-    await this.elasticsearchService.indices.putSettings({
-      index: Enum_EsIndex.Jobs,
-      settings: SETTINGS,
+    const operations = [
+      {
+        job_suggestion_id: 13,
+        typeid: 1,
+        searchtext_1: '北京大学城市学院',
+        searchtext_2: 'Peking University City College',
+        searchtext_3: '北京大學城市學院',
+        sort_order: 1,
+      },
+    ].flatMap((doc) => [{ index: { _index: newIndex } }, doc]);
+
+    await this.elasticsearchService.bulk(
+      {
+        refresh: true,
+        operations,
+      },
+      { compression: true },
+    );
+
+    await this.elasticsearchService.indices.updateAliases({
+      body: {
+        actions: [
+          ...currentIndex_list.map((x) => ({
+            remove: {
+              index: x,
+              alias: aliasName,
+            },
+          })),
+          {
+            add: {
+              index: newIndex,
+              alias: aliasName,
+            },
+          },
+        ],
+      },
     });
 
-    await this.elasticsearchService.indices.putMapping({
-      index: Enum_EsIndex.Jobs,
-      properties: MAPPING_PROPERTIES,
+    // Delete the old index
+    if (currentIndex_list?.length) {
+      await this.elasticsearchService.indices.delete({
+        index: currentIndex_list,
+      });
+    }
+    // await this.deleteAllJobsV7Index();
+  }
+
+  async deleteAllJobsV7Index() {
+    const indices = await this.elasticsearchService.cat.indices({
+      format: 'json',
     });
 
-    // reopen
-    await this.elasticsearchService.indices.open({
-      index: Enum_EsIndex.Jobs,
-    });
+    const indexNames = indices
+      .map((index) => index.index)
+      .filter((indexName) => indexName.startsWith('jobs_v7'));
+
+    for (const indexName of indexNames) {
+      await this.elasticsearchService.indices.delete({ index: indexName });
+    }
   }
 
   // async bulkCreateIndexDocuments() {
